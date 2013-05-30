@@ -1,0 +1,90 @@
+/* app css stylesheet */
+
+.btn {
+    min-width: 60px;
+}
+
+/* following makes titles truncate with an ellipsis if they're too long for one line, but unfortunately has the side-effect of chopping off low-hanging letters like 'p' */
+/*
+.console-detail h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+*/
+
+p.indent {
+    margin-left: 20px;
+}
+
+ul.nav.nav-list li ul.nav.nav-list li {
+    font-size: 85%;
+}
+
+ul.console-list {
+    list-style: none;
+}
+
+ul.console-list li h3 {
+    text-decoration: underline;
+}
+
+ul.console-list dt {
+    width: 100px;
+}
+ul.console-list dd {
+    margin-left: 110px;
+}
+
+div.console-detail dt {
+    width: 150px;
+}
+div.console-detail dd {
+    margin-left: 160px;
+}
+
+div.console-detail label.control-label {
+    font-weight: bold;
+    width: 100px;
+}
+div.console-detail div.controls {
+    margin-left: 110px;
+}
+
+div.console-detail form label.control-label {
+    width: 150px;
+}
+div.console-detail form label.control-label .tooltip {
+    font-weight: normal;
+}
+div.console-detail form div.controls {
+    margin-left: 160px;
+}
+
+div.console-detail label.control-label span.help-inline {
+    font-weight: normal;
+    font-size: 90%;
+}
+
+.default-payment-method {
+    font-weight: bold;
+}
+
+.negative {
+    color: red;
+}
+
+
+/* following needed so that empty 'dd' elements don't let following 'dd' elements fall through
+   see https://github.com/twitter/bootstrap/issues/4062
+   and http://www.positioniseverything.net/easyclearing.html */
+dd:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/* to keep uncompiled content from flashing on reload */
+[ng\:cloak], [ng-cloak], .ng-cloak { display: none; }

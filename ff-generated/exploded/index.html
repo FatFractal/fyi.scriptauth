@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en" ng-app="ffConsole">
+<head>
+  <meta charset="utf-8">
+  <title>The FatFractal FYI Test Harness</title>
+  <script type="text/javascript">
+    function httpsRedirect() {
+      var httpURL = window.location.hostname + window.location.pathname;
+      var httpsURL = "https://" + httpURL;
+      window.location = httpsURL;
+    }
+    console.log(window.location.href);
+    console.log(!window.location.href.match('^https://') && !window.location.href.match('^http://localhost'));
+    if (!window.location.href.match('^https://') && !window.location.href.match('^http://localhost'))
+      httpsRedirect();
+  </script>
+  <link rel="stylesheet" href="css/app.css"/>
+  <link href="lib/ui-bootstrap/assets/bootstrap.css" rel="stylesheet" media="screen">
+</head>
+<!--
+<body onunload="cleanUp()">
+-->
+<body>
+<div id="navbar" class="navbar" ng-controller="LoginCtrl">
+  <div class="navbar-inner">
+    <img src="img/beta.png" width="240px" class="brand pull-left">
+    <h1 style="margin: 20px -20px">Test Harness</h1>
+    <div class="span4" ui-if="refreshing" ng-cloak spinner style="margin: 20px -20px"></div>
+  </div>
+</div>
+<div class="well">
+  <h1>FYI - Datagraph with Objects and Collections</h1>
+  <p>This post demonstrates real examples of working with Object types in different Collections with FatFractal.
+  </p>
+  <div class="well">
+    <h2>The following Models are used with this post</h2>
+    <div class="well">
+      <p>function Movie() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;this.title = null;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;this.description = null;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;this.year = null;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;return this;<br>
+        }
+      </p>
+    </div>
+    <div class="well">
+      <p>function Actor() {<br>
+       &nbsp;&nbsp;&nbsp;&nbsp;this.firstName = null;<br>
+       &nbsp;&nbsp;&nbsp;&nbsp;this.lastName = null;<br>
+       &nbsp;&nbsp;&nbsp;&nbsp;return this;<br>
+       }
+      </p>
+    </div>
+    <h4>You can see the data created by this app using the FatFractal DataBrowser (
+      <a href = https://system.fatfractal.com/console/databrowser/databrowser.html?baseUrl=https://fyi.fatfractal.com/objectandcollections target = _blank>
+        here
+      </a>
+      )
+    </h4>
+  </div>
+  <div class="well">
+    <h2>Create a Movie in the Movies collection</h2>
+    <div class="well">
+      <p>var m = new Movie();<br>
+        m.title = "Argo";<br>
+        m.description = "Argo is a 2012 historical drama thriller film directed by Ben Affleck.";<br>
+        m.year =2012;<br>
+        ff.createObjAtUri(m, "/Movies");
+      </p>
+    </div>
+    <button id="new-movie-movies-button" class="btn" onclick="saveMovie()">Try it!</button>
+    <br>
+    <p id = "movie-movies-response"></p>
+  </div>
+  <div class="well">
+    <h2>Create an Actor in the Actors collection</h2>
+    <div class="well">
+      <p>
+        var a = new Actor();<br>
+        a.firstName = "Ben";<br>
+        a.lastName = "Affleck";<br>
+        ff.createObjAtUri(a, "/Actors");
+      </p>
+    </div>
+    <button id="new-actor-actors-button" class="btn" onclick="saveActor()">Try it!</button>
+    <br>
+    <p id = "actor-actors-response"></p>
+  </div>
+  <div class="well">
+    <h2>Create a Movie in the Favs collection</h2>
+    <div class="well">
+      <p>var m = new Movie();<br>
+        m.title = "Argo";<br>
+        m.description = "Argo is a 2012 historical drama thriller film directed by Ben Affleck.";<br>
+        m.year =2012;<br>
+        ff.createObjAtUri(m, "/Favs");
+      </p>
+    </div>
+    <button id="new-movie-favs-button" class="btn" onclick="saveMovieInFavs()">Try it!</button>
+    <br>
+    <p id = "movie-favs-response"></p>
+  </div>
+  <div class="well">
+    <h2>Create an Actor in the Favs collection</h2>
+    <div class="well">
+      <p>
+        var a = new Actor();<br>
+        a.firstName = "Ben";<br>
+        a.lastName = "Affleck";<br>
+        ff.createObjAtUri(a, "/Favs");
+      </p>
+    </div>
+    <button id="new-actor-favs-button" class="btn" onclick="saveActorInFavs()">Try it!</button>
+    <br>
+    <p id = "actor-favs-response"></p>
+  </div>
+  <div class="well">
+    <h2>Create an Actor in the Movies collection (doh!)</h2>
+    <div class="well">
+      <p>
+        var a = new Actor();<br>
+        a.firstName = "Ben";<br>
+        a.lastName = "Affleck";<br>
+        ff.createObjAtUri(a, "/Movies");
+      </p>
+    </div>
+    <p class = "red">Note: this is not allowed and should generate an error.</p>
+    <button id="new-actor-movies-button" class="btn" onclick="saveActorInMovies()">Try it!</button>
+    <br>
+    <p id = "actor-movies-response" class="red"></p>
+  </div>
+  <div class="well">
+    <h2>Get all the Movies from the Favs collection</h2>
+    <div class="well">
+       <p>ff.getArrayFromUri("/ff/resources/Favs/(clazz eq 'Movie')", function(r) {<br>
+           &nbsp;&nbsp;&nbsp;&nbsp;// handle success<br>
+           }, function(code,message){<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;// handle error<br>
+            });
+       </p>
+    </div>
+    <button id="get-actors-favs-button" class="btn" onclick="getMoviesFromFavs()">Try it!</button>
+    <br>
+    <p id = "movies-favs-response"></p>
+  </div>
+  <div class="well">
+    <h2>Get all the Actors from the Favs collection</h2>
+    <div class="well">
+       <p>ff.getArrayFromUri("/ff/resources/Favs/(clazz eq 'Actor')", function(r) {<br>
+           &nbsp;&nbsp;&nbsp;&nbsp;// handle success<br>
+           }, function(code,message){<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;// handle error<br>
+            });
+       </p>
+    </div>
+    <button id="get-actors-favs-button" class="btn" onclick="getActorsFromFavs()">Try it!</button>
+    <br>
+    <p id = "actors-favs-response"></p>
+  </div>
+  <div class="well">
+    <h2>Get all the objects from the Favs collection</h2>
+    <div class="well">
+       <p>ff.getArrayFromUri("/ff/resources/Favs/", function(r) {<br>
+           &nbsp;&nbsp;&nbsp;&nbsp;// handle success<br>
+           }, function(code,message){<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;// handle error<br>
+            });
+       </p>
+    </div>
+    <button id="get-all-favs-button" class="btn" onclick="getAllFromFavs()">Try it!</button>
+    <br>
+    <p id = "all-favs-response"></p>
+  </div>
+</div>
+<!--Scripts-->
+<script src="lib/FatFractal.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/beautify.js"></script>
+<!--
+<script src="lib/moment.min.js"></script>
+<script src="lib/spin.min.js"></script>
+<script src="resources/en.js"></script>
+
+-->
+</body>
+<script type="text/javascript">
+function Movie(obj) {
+   this.title = null;
+   this.description = null;
+   this.year = null;
+   if(obj) {
+      this.title = obj.title;
+      this.description = obj.description;
+      this.year = obj.year;
+   }
+   return this;
+}
+function Actor(obj) {
+   this.firstName = null;
+   this.lastName = null;
+   if(obj) {
+      this.firstName = obj.firstName;
+      this.lastName = obj.lastName;
+   }
+   return this;
+}
+function saveMovie() {
+   ff.login("test_user", "T3st_Us3r", function() {
+      var el = document.getElementById('movie-movies-response');
+      var m = new Movie();
+      m.title = "Argo";
+      m.description = "Argo is a 2012 historical drama thriller film directed by Ben Affleck.";
+      m.year =2012;
+      ff.createObjAtUri(m, "/Movies", function(resp) {
+         var mov = new Movie(resp);
+         var str = js_beautify(JSON.stringify(mov), {
+            indent_size: 4,
+            indent_char: '&nbsp;',
+            linefeed_char: '<br>'
+         });
+         el.innerHTML = "<br><div class = 'well blue'>Movie was created in the  " +
+            resp.ffRL + " Collection with data: " +
+            str + "</div>";
+         console.log("Movie was created: " + JSON.stringify(resp));
+      }, function(code, msg) {
+         console.error("saveMovie() createObjAtUri Error: " + code + " " + msg);
+         el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+      });
+   }, function(code, msg) {
+      console.error("Error logging in: " + code + ", error message" + msg);
+   });
+}
+function saveMovieInFavs() {
+   ff.login("test_user", "T3st_Us3r", function() {
+      var el = document.getElementById('movie-favs-response');
+      var m = new Movie();
+      m.title = "Argo";
+      m.description = "Argo is a 2012 historical drama thriller film directed by Ben Affleck.";
+      m.year =2012;
+      ff.createObjAtUri(m, "/Favs", function(resp) {
+         var mov = new Movie(resp);
+         var str = js_beautify(JSON.stringify(mov), {
+            indent_size: 4,
+            indent_char: '&nbsp;',
+            linefeed_char: '<br>'
+         });
+         el.innerHTML = "<br><div class = 'well blue'>Movie was created in the  " +
+            resp.ffRL + " Collection with data: " +
+            str + "</div>";
+         console.log("Movie was created: " + JSON.stringify(resp));
+      }, function(code, msg) {
+         el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+         console.error("saveMovieInFavs() createObjAtUri Error: " + code + " " + msg);
+      });
+   }, function(code, msg) {
+      console.error("Error logging in: " + code + ", error message" + msg);
+   });
+}
+function saveActor() {
+   ff.login("test_user", "T3st_Us3r", function() {
+      var el = document.getElementById('actor-actors-response');
+      var a = new Actor();
+      a.firstName = "Ben";
+      a.lastName = "Affleck";
+      ff.createObjAtUri(a, "/Actors", function(resp) {
+         var act = new Actor(resp);
+         var str = js_beautify(JSON.stringify(act), {
+            indent_size: 4,
+            indent_char: '&nbsp;',
+            linefeed_char: '<br>'
+         });
+         el.innerHTML = "<br><div class = 'well blue'>Actor was created in the  " +
+            resp.ffRL + " Collection with data: " +
+            str + "</div>";
+         console.log("Actor was created: " + JSON.stringify(resp));
+      }, function(code, msg) {
+         el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+         console.error("saveActor() createObjAtUri Error: " + code + " " + msg);
+      });
+   }, function(code, msg) {
+      console.error("Error logging in: " + code + ", error message" + msg);
+   });
+}
+function saveActorInFavs() {
+   ff.login("test_user", "T3st_Us3r", function() {
+      var el = document.getElementById('actor-favs-response');
+      var a = new Actor();
+      a.firstName = "Ben";
+      a.lastName = "Affleck";
+      ff.createObjAtUri(a, "/Favs", function(resp) {
+         var act = new Actor(resp);
+         var str = js_beautify(JSON.stringify(act), {
+            indent_size: 4,
+            indent_char: '&nbsp;',
+            linefeed_char: '<br>'
+         });
+         el.innerHTML = "<br><div class = 'well blue'>Actor was created in the  " +
+            resp.ffRL + " Collection with data: " +
+            str + "</div>";
+         console.log("Actor was created: " + JSON.stringify(resp));
+      }, function(code, msg) {
+         el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+         console.error("saveActorInFavs() createObjAtUri Error: " + code + " " + msg);
+      });
+   }, function(code, msg) {
+      console.error("Error logging in: " + code + ", error message" + msg);
+   });
+}
+function saveActorInMovies() {
+   ff.login("test_user", "T3st_Us3r", function() {
+      var el = document.getElementById('actor-movies-response');
+      var a = new Actor();
+      a.firstName = "Ben";
+      a.lastName = "Affleck";
+      ff.createObjAtUri(a, "/Movies", function(resp) {
+         var act = new Actor(resp);
+         var str = js_beautify(JSON.stringify(act), {
+            indent_size: 4,
+            indent_char: '&nbsp;',
+            linefeed_char: '<br>'
+         });
+         el.innerHTML = "<br><div class = 'well blue'>Actor was created in the  " +
+            resp.ffRL + " Collection with data: " +
+            str + "</div>";
+         console.log("Actor was created: " + JSON.stringify(resp));
+      }, function(code, msg) {
+         el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+         console.error("saveActorInMovies() createObjAtUri Error: " + code + " " + msg);
+      });
+   }, function(code, msg) {
+      console.error("Error logging in: " + code + ", error message" + msg);
+   });
+}
+function getMoviesFromFavs() {
+   var el = document.getElementById('movies-favs-response');
+   ff.getArrayFromUri("/ff/resources/Favs/(clazz eq 'Movie')", function(movies) {
+      console.log("Movies were retrieved: " + JSON.stringify(movies));
+      var str = "";
+      var elStr = "";
+      if(movies.length <= 0) alert("Create some Movies in the Favs Collection first!");
+      else {
+         for(var i = 0; i < movies.length; i++) {
+            var m = new Movie(movies[i]);
+            console.log("Movie was retrieved: " + JSON.stringify(m));
+            str = js_beautify(JSON.stringify(m), {
+               indent_size: 4,
+               indent_char: '&nbsp;',
+               linefeed_char: '<br>'
+            });
+            elStr += "Movie was retrieved from the  " +
+               movies[i].ffRL + " Collection with data: " +
+               str + "<br>";
+            console.log("<Movie was retrieved: " + JSON.stringify(m));
+         }
+      el.innerHTML = "<br><div class = 'well blue'>" + elStr + "</div>";
+      }
+   }, function(code, msg) {
+      el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+      console.error("getMoviesFromFavs() getArrayFromUri Error: " + code + " " + msg);
+   });
+}
+function getActorsFromFavs() {
+   var el = document.getElementById('actors-favs-response');
+   ff.getArrayFromUri("/ff/resources/Favs/(clazz eq 'Actor')", function(actors) {
+      console.log("Actors were retrieved: " + JSON.stringify(actors));
+      var str = "";
+      var elStr = "";
+      if(actors.length <= 0) alert("Create some Actors in the Favs Collection first!");
+      else {
+         for(var i = 0; i < actors.length; i++) {
+            var a = new Actor(actors[i]);
+            console.log("Actor was retrieved: " + JSON.stringify(a));
+            str = js_beautify(JSON.stringify(a), {
+               indent_size: 4,
+               indent_char: '&nbsp;',
+               linefeed_char: '<br>'
+            });
+            elStr += "Actor was retrieved from the  " +
+               actors[i].ffRL + " Collection with data: " +
+               str + "<br>";
+            console.log("Actor was retrieved: " + JSON.stringify(a));
+         }
+         el.innerHTML = "<br><div class = 'well blue'>" + elStr + "</div>";
+      }
+   }, function(code, msg) {
+      el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+      console.error("getActorsFromFavs() getArrayFromUri Error: " + code + " " + msg);
+   });
+}
+function getAllFromFavs() {
+   var el = document.getElementById('all-favs-response');
+   ff.getArrayFromUri("/ff/resources/Favs/", function(favs) {
+      console.log("Actors were retrieved: " + JSON.stringify(favs));
+      var str = "";
+      var elStr = "";
+      var obj;
+      if(favs.length <= 0) alert("Create some Actors or Movies in the Favs Collection first!");
+      else {
+         for(var i = 0; i < favs.length; i++) {
+            console.log("A " + favs[i].clazz + " was retrieved: " + JSON.stringify(favs[i]));
+            if(favs[i].clazz == "Actor") obj = new Actor(favs[i]);
+            else if(favs[i].clazz == "Movie") obj = new Movie(favs[i]);
+            else console.error("Unknown clazz");
+            str = js_beautify(JSON.stringify(obj), {
+               indent_size: 4,
+               indent_char: '&nbsp;',
+               linefeed_char: '<br>'
+            });
+            elStr += "A " + favs[i].clazz + " object was retrieved from the  " +
+               favs[i].ffRL + " Collection with data: " +
+               str + "<br>";
+         }
+         el.innerHTML = "<br><div class = 'well blue'>" + elStr + "</div>";
+      }
+   }, function(code, msg) {
+      el.innerHTML = "<br><div class = 'well red'>Got an error: " + msg + "</div>";
+      console.error("getActorsFromFavs() getArrayFromUri Error: " + code + " " + msg);
+   });
+}
+</script>
+<script type="text/javascript">
+   var ff = new FatFractal();
+   window.onbeforeunload=cleanup;
+   function cleanup(e) {
+      var leave_message = 'Thanks for visiting! \nAll test data has been deleted.';
+      ff.getObjFromExtension("/ff/ext/cleanup", function(resp) {
+      }, function(code, msg) {
+         console.error("cleanup error: " + msg);
+      });
+      return leave_message;
+   }
+</script>
+</html>
