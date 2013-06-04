@@ -1,7 +1,7 @@
 fyi.scriptauth
 ==============
 
-FYI - FatFractal uses the Scribe library for Oath1 and Oauth2 support
+FYI - FatFractal uses the Scribe library for Oath 1.0 and OAuth 2.0 support
 
 This sample code is referenced in the following:
 
