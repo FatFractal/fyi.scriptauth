@@ -1,5 +1,10 @@
 /** @namespace */
 
+var window = window;
+
+if (!window)
+    window = {};
+
 /**
  @constructor
  @classdesc Register Requests have (at least) the following fields. You may of course add other fields and they will form part of the new FFUser object.
@@ -257,6 +262,7 @@ function FatFractal() {
      */
     var m_http2 = function() {
         var xhr = new XMLHttpRequest();
+        //noinspection JSUnresolvedVariable
         return xhr.upload ? true : false;
     };
 
@@ -591,6 +597,7 @@ function FatFractal() {
 
     function m_ajax (ajaxParams) {
         function oldIEAjax(type, url, data, success, error) {
+            //noinspection JSUnresolvedFunction
             var xdr = new XDomainRequest();
             xdr.onload = function() {
                 var response;
@@ -628,6 +635,7 @@ function FatFractal() {
                     xmlHTTP = new ActiveXObject("Microsoft.XMLHTTP");
                 } catch (e){
                     try{
+                        //noinspection JSUnresolvedVariable
                         if (typeof XDomainRequest !== "undefined") {
                             oldIEAjax(ajaxParams.type, ajaxParams.url, ajaxParams.data, ajaxParams.success, ajaxParams.error);
                         }
@@ -903,6 +911,7 @@ function FatFractal() {
                 if(response.result != null && response.result.loggedInUser != null) {
                     m_loggedIn = true;
                     m_loggedInUser = response.result.loggedInUser;
+                    //noinspection JSUnresolvedVariable
                     m_sessionId = response.result.authResult.session.sessionId;
                     storeSessionInfo(m_loggedInUser, m_sessionId);
                     if(successCallback) successCallback(m_loggedInUser);
@@ -1040,6 +1049,7 @@ function FatFractal() {
                        if (response.result != null && response.result.loggedInUser != null) {
                            m_loggedIn = true;
                            m_loggedInUser = response.result.loggedInUser;
+                           //noinspection JSUnresolvedVariable
                            m_sessionId = response.result.authResult.session.sessionId;
                            storeSessionInfo(m_loggedInUser, m_sessionId);
                            if (successCallback) successCallback(m_loggedInUser);
@@ -1124,6 +1134,7 @@ function FatFractal() {
                            throw new Error("FatFractal.authUriForScriptAuthService: response does not contain 'result'");
                        }
 
+                       //noinspection JSUnresolvedVariable
                        var authUri = response.result.authorizationUri;
                        if (!authUri) {
                            throw new Error("FatFractal.authUriForScriptAuthService: response does not contain 'authorizationUri'");
@@ -1173,8 +1184,11 @@ function FatFractal() {
         if (!callbackUri) throw new Error("FatFractal.authUriForScriptAuthService: no callback URI found for ScriptAuth service " + scriptAuthService);
 
         var query = callbackUriWithVerifier.substr(callbackUriWithVerifier.indexOf("?") + 1);
+        if (query.indexOf('#') >= 0) {
+            query = query.substr(0, query.indexOf('#'));
+        }
 
-        var url = this.getBaseUrl() + "/ff/auth?action=getToken&scriptAuthService=" + scriptAuthService + "&callbackUri=" + encodeURIComponent(callbackUri) + "&codeQuery=" + encodeURIComponent(query);
+        var url = this.getBaseUrl() + "ff/auth?action=getToken&scriptAuthService=" + scriptAuthService + "&callbackUri=" + encodeURIComponent(callbackUri) + "&codeQuery=" + encodeURIComponent(query);
 
         var token = m_scriptAuthRequestTokens[scriptAuthService];
         if (token) {
@@ -1363,17 +1377,33 @@ function FatFractal() {
      * @param {Object} obj The object to update
      * @param {ArrayBuffer} blob The new BLOB
      * @param {String} memberName Member name of the BLOB in 'obj'
+     * @param {String} mimeType If not supplied, then when a BLOB is retrieved it will have a Content-Type as (and if) defined by the FFDL, or application/octet-stream otherwise
      * @param {Function} successCallback Function with two arguments - the actual data returned, and the accompanying statusMessage
      * @param {Function} errorCallback Function with two arguments - Number statusCode and String statusMessage
      */
-    this.updateBlobForObj = function(obj, blob, memberName, successCallback, errorCallback) {
-        // TODO: take mime type? iOS SDK does but I don't see the point
+    this.updateBlobForObj = function(obj, blob, memberName, mimeType, successCallback, errorCallback) {
+        if (! obj)
+            throw new Error("updateBlobForObj - obj argument must be supplied");
+        if (! obj.ffUrl)
+            throw new Error("updateBlobForObj - obj argument does not have ffUrl field");
+        if (typeof obj.ffUrl != 'string')
+            throw new Error("updateBlobForObj - obj.ffUrl should be a string");
 
-        if(m_debug) console.log("FatFractal.updateBlobForObj was called.");
+        if (!memberName || typeof memberName != 'string' || memberName.length == 0)
+            throw new Error("updateBlobForObj - memberName not supplied");
+
+        if (!blob || !blob.byteLength || blob.byteLength == 0)
+            throw new Error("updateBlobForObj - blob not supplied");
+
         if(! successCallback) successCallback = m_ff.defaultSuccessCallback;
         if(! successCallback) throw new Error("FatFractal.updateBlobForObj: successCallback not supplied");
         if(! errorCallback) errorCallback = m_ff.defaultErrorCallback;
         if(! errorCallback) throw new Error("FatFractal.updateBlobForObj: errorCallback not supplied");
+
+        if(m_debug) console.log("FatFractal.updateBlobForObj " + obj.ffUrl + " memberName " + memberName + " mimeType " + mimeType);
+
+        if (!mimeType || !mimeType.length || mimeType.length == 0)
+            mimeType = "application/octet-stream";
 
         if(blob.byteLength > 0) {
             var url = m_validUrl(obj.ffUrl);
@@ -1381,12 +1411,11 @@ function FatFractal() {
             m_ajax({
                        type: "PUT",
                        url: url + "/" + memberName,
-                       dataType: "application/octet-stream",
-                       contentType:"application/octet-stream",
-                       mimeType: "application/octet-stream",
+                       dataType: mimeType,
+                       contentType:mimeType,
                        data: blob,
                        success: function(response) {
-                           if (console.log) console.log("FatFractal.updateBlobForObj " + response.status + ", " + response.responseText);
+                           if (console.log) console.log("FatFractal.updateBlobForObj " + obj.ffUrl + " memberName " + memberName + " : response status " + response.status + ", " + response.responseText);
                            successCallback(obj, response.statusMessage);
                        },
                        error: function(xmlHTTP) {
@@ -1396,6 +1425,48 @@ function FatFractal() {
                        }
                    });
         }
+    };
+
+    /**
+     * Deletes the specified BLOB member in an object
+     * @param {Object} obj The object to which the BLOB belongs
+     * @param {String} memberName Member name of the BLOB in 'obj'
+     * @param {Function} successCallback Function with two arguments - the actual data returned, and the accompanying statusMessage
+     * @param {Function} errorCallback Function with two arguments - Number statusCode and String statusMessage
+     */
+    this.deleteBlobForObj = function(obj, memberName, successCallback, errorCallback) {
+        if (! obj)
+            throw new Error("deleteBlobForObj - obj argument must be supplied");
+        if (! obj.ffUrl)
+            throw new Error("deleteBlobForObj - obj argument does not have ffUrl field");
+        if (typeof obj.ffUrl != 'string')
+            throw new Error("deleteBlobForObj - obj.ffUrl should be a string");
+
+        if (!memberName || typeof memberName != 'string' || memberName.length == 0)
+            throw new Error("deleteBlobForObj - memberName not supplied");
+
+        if(! successCallback) throw new Error("FatFractal.deleteBlobForObj: successCallback not supplied");
+        if(! errorCallback) errorCallback = m_ff.defaultErrorCallback;
+        if(! errorCallback) throw new Error("FatFractal.deleteBlobForObj: errorCallback not supplied");
+
+        if(m_debug) console.log("FatFractal.deleteBlobForObj " + obj.ffUrl + " memberName " + memberName);
+
+        var url = m_validUrl(obj.ffUrl);
+        if(m_baseUrl) url = m_baseUrl + url;
+        m_ajax({
+                   type: "DELETE",
+                   url: url + "/" + memberName,
+                   dataType: "json",
+                   success: function(response) {
+                       if (console.log) console.log("FatFractal.deleteBlobForObj " + obj.ffUrl + " memberName " + memberName + " : response status " + response.status + ", " + response.responseText);
+                       successCallback(obj, response.statusMessage);
+                   },
+                   error: function(xmlHTTP) {
+                       if (console.error) console.error("FatFractal.deleteBlobForObj " + xmlHTTP.status + ", " + xmlHTTP.responseText);
+                       m_serverStatusMessage = "HTTP request failed - response code was " + xmlHTTP.status + " responseText was " + xmlHTTP.responseText;
+                       if (errorCallback) errorCallback(xmlHTTP.status, xmlHTTP.responseText);
+                   }
+               });
     };
 
     /**
@@ -1443,9 +1514,9 @@ function FatFractal() {
      */
     this.postObjToExtension = function (obj, extensionUri, successCallback, errorCallback) {
         if(! successCallback) successCallback = m_ff.defaultSuccessCallback;
-        if(! successCallback) throw new Error("FatFractal.executeFFDL: successCallback not supplied");
+        if(! successCallback) throw new Error("FatFractal.postObjToExtension: successCallback not supplied");
         if(! errorCallback) errorCallback = m_ff.defaultErrorCallback;
-        if(! errorCallback) throw new Error("FatFractal.executeFFDL: errorCallback not supplied");
+        if(! errorCallback) throw new Error("FatFractal.postObjToExtension: errorCallback not supplied");
         var url = m_validUrl(extensionUri, "extension");
         this.createObjAtUri(obj, url,
             function(result, statusMessage) {
@@ -1579,7 +1650,7 @@ function FatFractal() {
             data: null,
             success: function(response) {
                 // If we've got a 'references' field in the response, then process it
-                var responseReferences = response.references;
+                var responseReferences = response['references'];
                 if (responseReferences) {
                     for (var refIx = 0; refIx < responseReferences.length; refIx++) {
                         m_processResultObject(responseReferences[refIx]);
@@ -1742,6 +1813,8 @@ function FatFractal() {
                     var xhr = new XMLHttpRequest();
                     xhr.open("GET", url + "/" + refItem.name, true);
                     xhr.responseType = "arraybuffer";
+
+                    //noinspection JSUnusedLocalSymbols
                     xhr.onload = function (oEvent) {
                         var arrayBuffer = xhr.response; // Note: not xhr.responseText
                         if(m_debug) console.log("FatFractal.m_loadReference: arrayBuffer.byteLength " + arrayBuffer.byteLength);
@@ -1825,6 +1898,7 @@ function FatFractal() {
             y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
             x=x.replace(/^\s+|\s+$/g,"");
             if(x==c_name) {
+                //noinspection JSDeprecatedSymbols
                 return unescape(y);
             }
         }
@@ -1832,6 +1906,7 @@ function FatFractal() {
     }
 
     function getSessionInfoKey(thing) {
+    	if(m_baseUrl == null) m_baseUrl = m_ff.getBaseUrl();
         return m_baseUrl + "::" + thing;
     }
 

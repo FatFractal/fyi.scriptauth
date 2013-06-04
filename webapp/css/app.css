@@ -2,6 +2,7 @@
 
 .btn {
     min-width: 60px;
+    vertical-align:top;
 }
 
 /* following makes titles truncate with an ellipsis if they're too long for one line, but unfortunately has the side-effect of chopping off low-hanging letters like 'p' */

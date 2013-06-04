@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Authorize</title>
+</head>
+<body>
+  <div id="status">Authorizing ...</div>
+  <!-- scripts -->
+  <script type="text/javascript" src="lib/FatFractal.js"></script>
+  <script type="text/javascript">
+    var callbackUri = sessionStorage.getItem("ff-callback-uri");
+    var provider = sessionStorage.getItem("ff-auth-provider");
+    var ff = new FatFractal();
+    if(provider == "FACEBOOK") {
+      console.log("getting token for: " + provider);
+      ff.setCallbackUriForScriptAuthService(ff.SCRIPT_AUTH_SERVICE_FACEBOOK, callbackUri);
+      ff.retrieveAccessTokenForScriptAuthService(ff.SCRIPT_AUTH_SERVICE_FACEBOOK, location.href, function() {
+        ff.loginWithScriptAuthService(ff.SCRIPT_AUTH_SERVICE_FACEBOOK, function(user) {
+          var msg = "Success! Logged in as " + user.guid;
+          var el = document.getElementById('status');
+          el.innerHTML = "<br><div class = 'well'>Logged in with Facebook - message: " + msg + "</div>";
+          window.location = "index.html";
+        });
+      });
+    } else if(provider == "TWITTER") {
+      var requestToken = JSON.parse(sessionStorage.getItem("ff-tw-request-token"));
+      sessionStorage.removeItem("ff-tw-request-token");
+      ff.setCallbackUriForScriptAuthService(ff.SCRIPT_AUTH_SERVICE_TWITTER, callbackUri);
+      ff.setRequestTokenForScriptAuthService(ff.SCRIPT_AUTH_SERVICE_TWITTER, requestToken);
+      ff.retrieveAccessTokenForScriptAuthService(ff.SCRIPT_AUTH_SERVICE_TWITTER, location.href, function() {
+        ff.loginWithScriptAuthService(ff.SCRIPT_AUTH_SERVICE_TWITTER, function(user) {
+          var msg = "Success! Logged in as " + user.guid;
+          var el = document.getElementById('status');
+          el.innerHTML = "<br><div class = 'well'>Logged in with Twitter -  message: " + msg + "</div>";
+          window.location = "index.html";
+        });
+      });
+    } else console.error("Could not determine the OAuth provider");
+  </script>
+</body>
+</html>
