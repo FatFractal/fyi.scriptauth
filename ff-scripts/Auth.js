@@ -2,13 +2,14 @@ var auth = require('ffef/ScriptAuth');
 
 var TWITTER = "TWITTER";
 auth.setScribeApiClassName(TWITTER, "org.scribe.builder.api.TwitterApi");
-auth.setScribeApiKey(TWITTER, "wvgezLiIOkUWosa1PJprA");
-auth.setScribeApiSecret(TWITTER, "kwpiZsP2nFjqBT115k3cSUBa2ykEwWnlIv6eykYA");
+auth.setScribeApiKey(TWITTER, "twitter_api_key");
+auth.setScribeApiSecret(TWITTER, "twitter_api_secret");
 
 var FACEBOOK = "FACEBOOK";
 auth.setScribeApiClassName(FACEBOOK, "org.scribe.builder.api.FacebookApi");
-auth.setScribeApiKey(FACEBOOK, "376849175769100");
-auth.setScribeApiSecret(FACEBOOK, "1bb8926eb31b524c0fc3ba500e0b8727");
+auth.setScribeApiKey(FACEBOOK, "facebook_app_id");
+auth.setScribeApiSecret(FACEBOOK, "facebook_app_secret");
+
 
 var AUTH_SERVICES = [TWITTER, FACEBOOK];
 
