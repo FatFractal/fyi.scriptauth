@@ -1,7 +1,7 @@
 var auth = require('ffef/ScriptAuth');
 
 var TWITTER = "TWITTER";
-auth.setScribeApiClassName(TWITTER, "org.scribe.builder.api.TwitterApi");
+auth.setScribeApiClassName(TWITTER, "org.scribe.builder.api.TwitterApi$SSL");
 auth.setScribeApiKey(TWITTER, "twitter_api_key");
 auth.setScribeApiSecret(TWITTER, "twitter_api_secret");
 
