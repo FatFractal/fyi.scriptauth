@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:gravity="center"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+        >
+    <LinearLayout
+            android:id="@+id/loggedOut"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            >
+        <TextView
+                android:text="Login using:"
+                android:textSize="24sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Facebook"
+                android:id="@+id/facebookButton" android:layout_gravity="center"
+                />
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Twitter"
+                android:id="@+id/twitterButton" android:layout_gravity="center"
+                />
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/loggedIn"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            >
+
+        <TextView
+                android:text="Logged in as:"
+                android:textSize="24sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                >
+            <TextView
+                    android:text="User name:"
+                    android:ems="9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            <TextView
+                    android:id="@+id/userName"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                >
+            <TextView
+                    android:text="Service:"
+                    android:ems="9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            <TextView
+                    android:id="@+id/service"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+        </LinearLayout>
+
+        <Button
+                android:id="@+id/logOutButton"
+                android:text="Log out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+    </LinearLayout>
+
+    <TextView
+            android:id="@+id/error"
+            android:visibility="gone"
+            android:textColor="@android:color/holo_red_light"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            />
+</LinearLayout>
+
